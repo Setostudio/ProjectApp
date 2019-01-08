@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback
 } from "react-native";
 
+import { ENDPOINT } from "../../../apis/apiConfig";
 import { connect } from "react-redux";
 import getLayout from "../../../helpers/getLayout";
 
@@ -27,16 +28,13 @@ class CardProduct extends Component {
   }
 
   render() {
-    let {
-      productImg,
-      productName,
-      productPrice,
-      productRating,
-      isLiked
-    } = this.props.data;
+    let { imageSub, name, price, isLiked } = this.props.data;
     return (
-      <TouchableOpacity onPress={this.props.onPressItem}>
-        <Card style={{ width: getLayout.width - 100, marginTop: 20 }}>
+      <AppView center>
+        <AppView
+          onPress={this.props.onPressItem}
+          style={{ width: getLayout.width - 40 }}
+        >
           <AppView onPress={this.props.onIconPress}>
             <Icon
               name="ios-heart"
@@ -46,26 +44,20 @@ class CardProduct extends Component {
           </AppView>
           <AppView center>
             <Image
-              source={{ uri: productImg }}
-              style={{ width: getLayout.width - 40, height: 200 }}
+              source={{ uri: `${ENDPOINT}${imageSub}` }}
+              style={{ width: getLayout.width - 40, height: 250 }}
               resizeMode="contain"
             />
           </AppView>
 
           <AppView center style={{ marginTop: 20 }}>
-            <AppText>{productName}</AppText>
-            <AppText>{productPrice}$</AppText>
-            <StarRating
-              disabled={true}
-              maxStars={5}
-              rating={productRating}
-              starSize={20}
-              fullStarColor={appColor.primaryColor}
-              halfStarColor={appColor.primaryColor}
-            />
+            <AppText bold fontSize={18}>
+              {name}
+            </AppText>
+            <AppText>${price}</AppText>
           </AppView>
-        </Card>
-      </TouchableOpacity>
+        </AppView>
+      </AppView>
     );
   }
 }

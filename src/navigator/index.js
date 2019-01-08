@@ -17,6 +17,9 @@ import CartScreen from "../screens/CartScreen";
 import ViewProductScreen from "../screens/ViewProductScreen";
 import CategoryScreen from "../screens/CategoryScreen";
 import ListLikedScreen from "../screens/ListLikedScreen";
+import ChartScreen from "../screens/ChartScreen";
+import SplashScreen from "../screens/SplashScreen";
+import IntroScreen from "../screens/IntroScreen";
 const TabStack = createBottomTabNavigator(
   {
     Home: HomeScreen,
@@ -59,6 +62,12 @@ const TabStack = createBottomTabNavigator(
 
 const OutterStack = createStackNavigator(
   {
+    Splash: {
+      screen: SplashScreen
+    },
+    Intro: {
+      screen: IntroScreen
+    },
     Tab: {
       screen: TabStack
     },
@@ -70,10 +79,14 @@ const OutterStack = createStackNavigator(
     },
     Liked: {
       screen: ListLikedScreen
+    },
+    Chart: {
+      screen: ChartScreen
     }
   },
   {
-    headerMode: "none"
+    headerMode: "none",
+    initialRouteName: "Splash"
   }
 );
 export default createAppContainer(OutterStack);

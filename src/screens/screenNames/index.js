@@ -8,5 +8,7 @@ export default (screenNames = {
   ViewProductScreen: "ViewProduct",
   CategoryScreen: "Category",
   TabStack: "TabStack",
-  Liked: "Liked"
+  Liked: "Liked",
+  Splash: "Splash",
+  Intro: "Intro"
 });

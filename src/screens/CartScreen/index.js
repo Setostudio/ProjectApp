@@ -1,82 +1,116 @@
 import React, { Component } from "react";
-import { View, TouchableOpacity, FlatList, Image } from "react-native";
+import { View, TouchableOpacity, FlatList, Image, Share } from "react-native";
 
+import { ENDPOINT } from "../../apis/apiConfig";
+import NotificationBadge from "../../components/others/NotificationBadge";
 import { connect } from "react-redux";
 import getLayout from "../../helpers/getLayout";
 
-import AppText from "../../components/basic/AppText";
-import AppButton from "../../components/basic/AppButton";
-import AppHeader from "../../components/basic/AppHeader";
-import AppView from "../../components/basic/AppView";
-
-import StarRating from "react-native-star-rating";
-import appColor from "../../commonTheme";
-
-import screenNames from "../screenNames";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { toggleQuantityAction, deleteItemAction } from "../../actions";
+import { toggleQuantity, deleteItemAction } from "../../actions";
 import { ScrollView } from "react-native-gesture-handler";
 
+import ModalConfirm from "../../components/others/ModalConfirm";
+
+import AppText from "../../components/basic/AppText";
+import AppHeader from "../../components/basic/AppHeader";
+import AppView from "../../components/basic/AppView";
+import appColor from "../../commonTheme";
+import screenNames from "../screenNames";
+import styles from "./styles";
 class CartScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      isModalVisible: false,
+      currentId: ""
+    };
   }
 
+  static navigationOptions = () => ({
+    tabBarIcon: ({ tintColor }) => <NotificationBadge color={tintColor} />,
+    activeTintColor: appColor.primaryColor,
+    inactiveTintColor: appColor.darkGrey
+  });
+
   _onCheckout = () => {};
-  _keyExtractor = item => item.productId;
+  _keyExtractor = item => item._id;
 
   _renderItem = ({ item }) => {
+    let { imageSub, name, price, quantity, _id } = item;
     return (
-      <AppView row style={{ marginBottom: 10, borderBottomWidth: 0.5 }}>
-        <AppView flexSize={1}>
-          <Image
-            source={{ uri: item.productImg }}
-            style={{ width: getLayout.width / 5 - 10, height: 100 }}
-            resizeMode="contain"
-          />
-        </AppView>
-
-        <AppView flexSize={3}>
-          <AppView flexSize={2} style={{ justifyContent: "center" }}>
-            <AppText fontSize={16}>{item.productName}</AppText>
-            <AppText bold fontSize={17}>
-              $ {item.productPrice} * {item.productQuantity}
-            </AppText>
+      <AppView style={{ marginBottom: 10, borderBottomWidth: 0.5 }}>
+        <AppView row style={{ marginBottom: 10 }}>
+          <AppView flexSize={2}>
+            <Image
+              source={{ uri: `${ENDPOINT}${imageSub}` }}
+              style={{
+                width: getLayout.width / 4,
+                height: 100,
+                borderRadius: 20
+              }}
+              resizeMode="contain"
+            />
+          </AppView>
+          <AppView flexSize={5}>
+            <AppView
+              flexSize={2}
+              style={{ justifyContent: "center", marginLeft: 10 }}
+            >
+              <AppText fontSize={16}>{name}</AppText>
+              <AppText bold fontSize={17}>
+                $ {price}
+              </AppText>
+            </AppView>
+            <AppView
+              style={{
+                alignItems: "flex-end",
+                justifyContent: "flex-end",
+                padding: 10
+              }}
+              onPress={() => {
+                this.setState({ currentId: _id, isModalVisible: true });
+              }}
+            >
+              <Icon name="trash" size={20} color={appColor.primaryColor} />
+            </AppView>
           </AppView>
           <AppView
+            flexSize={1}
             style={{
               alignItems: "flex-end",
-              justifyContent: "flex-end",
-              padding: 10
-            }}
-            onPress={() => {
-              this.props._deleteItemAction(item.productId);
+              justifyContent: "center",
+              marginRight: 10
             }}
           >
-            <Icon name="trash" size={20} color={appColor.primaryColor} />
-          </AppView>
-        </AppView>
-        <AppView center flexSize={1}>
-          <AppView
-            center
-            onPress={() => {
-              this.props._toggleQuantityAction(item.productId, true);
-            }}
-          >
-            <AppText>Increase</AppText>
-          </AppView>
-          <AppView>
-            <AppText>{item.productQuantity}</AppText>
-          </AppView>
-          <AppView
-            center
-            onPress={() => {
-              this.props._toggleQuantityAction(item.productId, false);
-            }}
-          >
-            <AppText>Decrease</AppText>
+            <AppView
+              center
+              onPress={() => {
+                this.props._toggleQuantity(_id, true);
+              }}
+            >
+              <Ionicons
+                name="ios-arrow-up"
+                size={25}
+                color={appColor.primaryColor}
+              />
+            </AppView>
+            <AppView>
+              <AppText fontSize={25}>{quantity}</AppText>
+            </AppView>
+            <AppView
+              center
+              onPress={() => {
+                this.props._toggleQuantity(_id, false);
+              }}
+            >
+              <Ionicons
+                name="ios-arrow-down"
+                size={25}
+                color={appColor.primaryColor}
+              />
+            </AppView>
           </AppView>
         </AppView>
       </AppView>
@@ -100,45 +134,65 @@ class CartScreen extends Component {
     } else {
       return (
         <AppView>
-          <AppView row style={{ width: getLayout.width, height: 20 }}>
-            <AppView style={{ flex: 1 }}>
-              <AppText fontSize={18}>Total Price:</AppText>
+          <AppView
+            row
+            style={{ width: getLayout.width, height: 20, marginTop: 10 }}
+          >
+            <AppView
+              style={{ flex: 1, marginLeft: 10, justifyContent: "center" }}
+            >
+              <AppText bold fontSize={18}>
+                Total Price:
+              </AppText>
             </AppView>
             <AppView
               style={{
                 flex: 1,
                 alignItems: "flex-end",
+                justifyContent: "center",
                 marginRight: 15
               }}
             >
-              <AppText fontSize={18}>$ {this.props.totalPrice}</AppText>
+              <AppText fontSize={18} style={{ color: appColor.primaryColor }}>
+                $ {this.props.totalPrice}
+              </AppText>
             </AppView>
           </AppView>
-          <FlatList
-            data={this.props.listSelectedProduct}
-            extraData={this.props}
-            keyExtractor={this._keyExtractor}
-            renderItem={this._renderItem}
-          />
+          <AppView style={{ marginTop: 15 }}>
+            <FlatList
+              data={this.props.listSelectedProduct}
+              extraData={this.props}
+              keyExtractor={this._keyExtractor}
+              renderItem={this._renderItem}
+            />
+          </AppView>
         </AppView>
       );
     }
   };
+  _toggleModal = () => {
+    this.setState(prevState => ({
+      isModalVisible: !prevState.isModalVisible
+    }));
+  };
   render() {
     return (
       <AppView flexSize={1}>
+        <ModalConfirm
+          isVisible={this.state.isModalVisible}
+          onBackButtonPress={this._toggleModal}
+          onBackdropPress={this._toggleModal}
+          onExit={this._toggleModal}
+          onConfirm={() => {
+            this.props._deleteItemAction(this.state.currentId);
+            this._toggleModal();
+          }}
+        />
         <AppHeader />
         <ScrollView>
           <this._renderEmpty />
         </ScrollView>
-        <AppView
-          row
-          style={{
-            height: getLayout.height / 15,
-            width: getLayout.width,
-            justifyContent: "flex-end"
-          }}
-        >
+        <AppView row style={styles.bottomButton}>
           <AppView
             flexSize={1}
             center
@@ -164,14 +218,14 @@ class CartScreen extends Component {
   }
 }
 mapStateToProps = state => {
+  let { listSelectedProduct, totalPrice } = state.product;
   return {
-    listSelectedProduct: state.listSelectedProduct,
-    totalPrice: state.totalPrice
+    listSelectedProduct,
+    totalPrice
   };
 };
 mapDispatchToProps = dispatch => ({
-  _toggleQuantityAction: (id, isPlus) =>
-    dispatch(toggleQuantityAction(id, isPlus)),
+  _toggleQuantity: (id, isPlus) => dispatch(toggleQuantity(id, isPlus)),
   _deleteItemAction: id => dispatch(deleteItemAction(id))
 });
 export default connect(

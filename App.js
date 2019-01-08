@@ -6,6 +6,7 @@ import thunk from "redux-thunk";
 import AppNavigator from "./src/navigator";
 
 import allReducers from "./src/reducers";
+
 const store = createStore(allReducers, applyMiddleware(thunk));
 class App extends Component {
   constructor(props) {

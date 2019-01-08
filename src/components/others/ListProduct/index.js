@@ -1,5 +1,7 @@
 import React, { Component } from "react";
-import {} from "react-native";
+import { Image } from "react-native";
+
+import { ENDPOINT } from "../../../apis/apiConfig";
 import { Thumbnail } from "native-base";
 import { connect } from "react-redux";
 import getLayout from "../../../helpers/getLayout";
@@ -16,29 +18,33 @@ class ListProduct extends Component {
   }
 
   render() {
-    let { data } = this.props;
+    let {
+      image,
+      imageSub,
+      name,
+      price,
+      _id,
+      description,
+      isLiked
+    } = this.props.data;
     return (
       <AppView row style={{ width: getLayout.width, marginBottom: 15 }}>
         <AppView flexSize={1} onPress={this.props.onPressItem}>
-          <Thumbnail source={{ uri: data.productImg }} large />
+          <Image
+            source={{ uri: `${ENDPOINT}${imageSub}` }}
+            style={{
+              width: getLayout.width / 4 - 10,
+              height: 100,
+              borderRadius: 20
+            }}
+            resizeMode="contain"
+          />
         </AppView>
-        <AppView flexSize={4}>
-          <AppText>{data.productName}</AppText>
-          <AppText>{data.productPrice} $</AppText>
-          <AppView row style={{ alignItems: "center" }}>
-            <StarRating
-              containerStyle={{ width: 100 }}
-              disabled={true}
-              maxStars={5}
-              rating={data.productRating}
-              starSize={15}
-              fullStarColor={appColor.primaryColor}
-              halfStarColor={appColor.primaryColor}
-            />
-            <AppView style={{ marginLeft: 10 }}>
-              <AppText fontSize={15}>{data.productRating} / 5</AppText>
-            </AppView>
-          </AppView>
+        <AppView flexSize={2} style={{ marginLeft: 10 }}>
+          <AppText bold fontSize={18}>
+            {name}
+          </AppText>
+          <AppText>{price} $</AppText>
         </AppView>
         <AppView
           onPress={this.props.onIconPress}
@@ -53,7 +59,7 @@ class ListProduct extends Component {
             <Ionicons
               name="ios-heart"
               size={35}
-              color={data.isLiked ? appColor.primaryColor : appColor.cardGrey}
+              color={isLiked ? appColor.primaryColor : appColor.cardGrey}
             />
           )}
           {this.props.favourite && (

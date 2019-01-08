@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { FlatList } from "react-native";
-import SwipeUpDown from "react-native-swipe-up-down";
+
 import { connect } from "react-redux";
 import getLayout from "../../helpers/getLayout";
 
@@ -13,20 +13,21 @@ import CardProduct from "../../components/others/CardProduct";
 import ListProduct from "../../components/others/ListProduct";
 import appColor from "../../commonTheme";
 
-import { deleteFavouriteAction } from "../../actions";
+import ModalConfirm from "../../components/others/ModalConfirm";
+import { deleteFavouriteAction, likeProductAction } from "../../actions";
 class ListLikedScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = { isModalVisible: false, currentId: "" };
   }
-  _keyExtractor = (item, index) => item.productId;
+  _keyExtractor = item => item.productId;
 
   _renderItem = ({ item }) => (
     <ListProduct
       data={item}
       favourite
       onIconPress={() => {
-        this.props._deleteFavouriteAction(item.productId);
+        this.setState({ isModalVisible: true, currentId: item._id });
       }}
     />
   );
@@ -59,9 +60,26 @@ class ListLikedScreen extends Component {
       );
     }
   };
+  _toggleModal = () => {
+    this.setState(prevState => ({
+      isModalVisible: !prevState.isModalVisible
+    }));
+  };
   render() {
     return (
       <AppView>
+        <ModalConfirm
+          isVisible={this.state.isModalVisible}
+          onBackButtonPress={this._toggleModal}
+          onBackdropPress={this._toggleModal}
+          onExit={this._toggleModal}
+          onConfirm={() => {
+            let { _likeProductAction, _deleteFavouriteAction } = this.props;
+            _deleteFavouriteAction(this.state.currentId);
+            _likeProductAction(this.state.currentId);
+            this._toggleModal();
+          }}
+        />
         <AppView>
           <AppHeader backButton title="Your favorite" />
         </AppView>
@@ -71,12 +89,14 @@ class ListLikedScreen extends Component {
   }
 }
 mapStateToProps = state => {
+  let { listLikedProduct } = state.product;
   return {
-    listLikedProduct: state.listLikedProduct
+    listLikedProduct: listLikedProduct
   };
 };
 mapDispatchToProps = dispatch => ({
-  _deleteFavouriteAction: id => dispatch(deleteFavouriteAction(id))
+  _deleteFavouriteAction: id => dispatch(deleteFavouriteAction(id)),
+  _likeProductAction: id => dispatch(likeProductAction(id))
 });
 export default connect(
   mapStateToProps,

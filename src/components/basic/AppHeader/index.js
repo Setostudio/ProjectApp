@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { View } from "react-native";
 
 import { withNavigation } from "react-navigation";
+
+import NotificationBadge from "../../others/NotificationBadge";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import AppView from "../AppView";
 import getLayout from "../../../helpers/getLayout";
@@ -25,15 +27,17 @@ class AppHeader extends Component {
           {this.props.backButton && (
             <AppView
               onPress={() => {
-                this.props.navigation.goBack();
+                this.props.customBack
+                  ? this.props.customBack()
+                  : this.props.navigation.goBack();
               }}
             >
-              <Icon name="arrow-left" size={25} color={appColor.pureWhite} />
+              <Icon name="arrow-left" size={20} color={appColor.pureWhite} />
             </AppView>
           )}
         </AppView>
         <AppView flexSize={4}>
-          <AppText bold fontSize={18} fullWhite>
+          <AppText fontSize={18} fullWhite>
             {this.props.title}
           </AppText>
         </AppView>
@@ -46,7 +50,7 @@ class AppHeader extends Component {
                   this.props.navigation.navigate(screenNames.Liked);
                 }}
               >
-                <Icon name="heart" size={25} color={appColor.pureWhite} />
+                <NotificationBadge favourite />
               </AppView>
               <AppView
                 style={{ marginRight: 5 }}
@@ -54,7 +58,7 @@ class AppHeader extends Component {
               >
                 <Icon
                   name={this.props.isCard ? "columns" : "chalkboard"}
-                  size={25}
+                  size={20}
                   color={appColor.pureWhite}
                 />
               </AppView>
